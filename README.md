@@ -107,12 +107,26 @@ cards only.
 
 **Question:**
 
+Using the guides_accessibility.md, which town is the easiest for walking?
+
 **Answer:**
 
-```
-```
+According to `guide_accessibility.md`, Thornby Wells is described as the easiest town in the region because it is flat, compact, and everything is within a three-minute walk of everything else.
+
+Sources retrieved: guide_accessibility.md, guide_corry_vale.md, guide_elder_ness.md, guide_halden_bay.md, guide_kestrelford.md
+
+Note: When I ask just "Which town is the easiest for walking?", I actually got "Based on the provided documents, there is not enough information to determine which town is the *easiest* for walking." After grounding the question with a specific guide, it correctly
+answers the question. Grounded question best distance: 0.518, cutoff: 0.6.
 
 **My relevance cutoff:**
+
+Cutoff: 0.6
+
+In-scope question ranges from 0.338 to 0.487, out-of-scope ranges from 0.754 to 0.899.
+We would want the range to be between 0.487 and 0.754 based on the 10 questions.
+Mid-point is 0.62, so I think the default 0.6 is good for city_guide corpus
+because five question is still a small sample size, I don't want to lower the cutoff
+and potentially reduce its accuracy.
 
 <!-- The number you set in config.py, and how you got there.
 
@@ -124,8 +138,16 @@ cards only.
      Milestone 4. -->
 
 | Question | In corpus? | Best distance |
-|---|---|---|
-|  |  |  |
+| Which town is the easiest for walking? | yes | 0.487 |
+| When do the restaurants close? | yes | 0.338 |
+| Which town's market has been running the longest? | yes | 0.446 |
+| How many tram lines does Marchwood have? | yes | 0.392 |
+| What to see at Givens Mills? | yes | 0.437 |
+| What is the capital of Mongolia? | no | 0.754 |
+| How do I change the oil in a diesel engine? | no | 0.892 |
+| Who won the 1994 World Cup? | no | 0.899 |
+| What is the recommended dosage of ibuprofen for a headache? | no | 0.846 |
+| How do I write a for loop in Rust? | no | 0.813 |
 
 ## How I Used AI
 
@@ -139,8 +161,50 @@ cards only.
      Milestone 5. -->
 
 **1.**
+I asked GPT-5.6 Luna to write my chunking function:
+"replacement split_documents() with a new chunking strategry that chunks each subsection of texts for my corpus documents.
+
+Example:
+"## Eat and drink
+
+A tearoom attached to the mill, open 10 to 4 daily except Tuesdays, which sells bread made from the flour ground twenty metres away and is the reason most people come. One pub, food served lunchtimes and Thursday to Saturday evenings."
+
+should be 1 chunk."
+
+After the AI generated the chunking function, I asked it to explain each part of the code because I'm still new to Python syntax.
 
 **2.**
+The other 2 times I used AI is for the Talk this through section for Milestone 3 and 4:
+Note: I used VS Code AI chat, and it autorouted to GPT-5.6 Luna.
+
+Milestone 3:
+Q: Here are five chunks from my documents. For each one, tell me what question it could answer on its own. If it can't answer anything on its own, say so and tell me what's missing. (pasted the long answer I got from the running python app.py chunks.)
+
+A:
+Chunk 1: It cannot answer a useful question on its own. It only says the region may be difficult for people with limited mobility. It is missing specific accessibility information about roads, paths, buildings, and transport.
+Chunk 2: When is the best time to visit Corry Vale, and what seasonal problems should visitors expect?
+Chunk 3: Where can visitors eat and drink at Givens Mill, and when are those places open?
+Chunk 4: When is the best time to visit Kestrelford, and what seasonal travel difficulties should visitors expect?
+Chunk 5: How can visitors travel by train from Brightwater, and what should they know about schedules, tickets, and onward transport?
+
+My thought: Based on the chunks and the AI's answer. My chunking strategy should work correctly for city_guide corpus.
+
+Milestone 4:
+Not including the 
+Q: Here are the best distances for five questions my documents cover, and five they don't. Where would you put the cutoff, and what would I get wrong at that number? (pasted the best distance list)
+
+A:
+I’d set the cutoff at 0.6. Lower distances are more relevant, and this sits comfortably between the closest in-corpus result (0.487) and the closest out-of-corpus result (0.754).
+
+At 0.6, these ten examples would all be classified correctly:
+
+5/5 in-corpus questions accepted
+5/5 out-of-corpus questions rejected
+0 false positives
+0 false negatives
+The main risk is that this is a small sample. A covered question with a distance above 0.6 would be incorrectly rejected, while an unrelated question unusually close to the corpus could still be accepted.
+
+My thought: I also picked 0.6 cutoff before asking AI this question, it's good that AI confirms my 0.6 cutoff is a good and reasonable cutoff.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never

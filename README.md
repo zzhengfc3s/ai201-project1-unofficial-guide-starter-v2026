@@ -57,38 +57,37 @@ My strategy is to just chunk each subsection using pattern matching for the subs
 
      Milestone 3. -->
 
-======================================================================
-Chunk 1  |  source: guide_accessibility.md#0  |  produced by: chunker.py::split_documents
-======================================================================
+**Chunk 1** — source: guide_accessibility.md#0 `` — produced by: chunker.py::split_documents ``
+```
 # Getting around the region with limited mobility
 
 An honest assessment rather than a promotional one. Some of these places are
 difficult and it is better to know in advance.
+```
 
-======================================================================
-Chunk 2  |  source: guide_corry_vale.md#6  |  produced by: chunker.py::split_documents
-======================================================================
+**Chunk 2** - source: guide_corry_vale.md#6 `` — produced by: chunker.py::split_documents ``
+```
 ## When to go
 
 May to September. Outside those months the pub in the third village closes, the farm shop reduces its hours, and several footpaths become genuinely boggy rather than merely wet. The road is not gritted above the second village and is impassable in snow.
+```
 
-======================================================================
-Chunk 3  |  source: guide_givens_mill.md#3  |  produced by: chunker.py::split_documents
-======================================================================
+**Chunk 3** - source: guide_givens_mill.md#3 `` — produced by: chunker.py::split_documents ``
+```
 ## Eat and drink
 
 A tearoom attached to the mill, open 10 to 4 daily except Tuesdays, which sells bread made from the flour ground twenty metres away and is the reason most people come. One pub, food served lunchtimes and Thursday to Saturday evenings.
+```
 
-======================================================================
-Chunk 4  |  source: guide_kestrelford.md#6  |  produced by: chunker.py::split_documents
-======================================================================
+**Chunk 4** - source: guide_kestrelford.md#6 `` — produced by: chunker.py::split_documents ``
+```
 ## When to go
 
 Late spring and early autumn. The Saturday market runs year-round but is much reduced from November to February. August is busy with walkers. The single-track approach road is genuinely difficult in snow and the town can be cut off for a day or two most winters.
+```
 
-======================================================================
-Chunk 5  |  source: guide_regional_transport.md#1  |  produced by: chunker.py::split_documents
-======================================================================
+**Chunk 5** - source: guide_regional_transport.md#1 `` — produced by: chunker.py::split_documents ``
+```
 ## The railway
 
 The line runs along the river valley, connecting Brightwater to the regional
@@ -99,6 +98,7 @@ Tickets are cheaper booked the day before than on the day, and considerably
 cheaper than that booked a week ahead. There is no ticket office at
 Brightwater station outside weekday mornings; the machine on the platform takes
 cards only.
+```
 
 ## Sample Answer
 
@@ -138,6 +138,7 @@ and potentially reduce its accuracy.
      Milestone 4. -->
 
 | Question | In corpus? | Best distance |
+|---|---|---|
 | Which town is the easiest for walking? | yes | 0.487 |
 | When do the restaurants close? | yes | 0.338 |
 | Which town's market has been running the longest? | yes | 0.446 |
@@ -190,7 +191,6 @@ Chunk 5: How can visitors travel by train from Brightwater, and what should they
 My thought: Based on the chunks and the AI's answer. My chunking strategy should work correctly for city_guide corpus.
 
 Milestone 4:
-Not including the 
 Q: Here are the best distances for five questions my documents cover, and five they don't. Where would you put the cutoff, and what would I get wrong at that number? (pasted the best distance list)
 
 A:

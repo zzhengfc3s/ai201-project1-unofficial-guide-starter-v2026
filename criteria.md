@@ -26,6 +26,8 @@ contains the answer.
 <!-- e.g. "One of my questions is about a topic only two documents mention, so
      I expect that one to be hard." -->
 
+One of my question may have slightly different answer depending on which city guide it uses or how the chunk.
+
 ---
 
 ## 2. Every answer names a source
@@ -35,6 +37,9 @@ Every answer the system produces names at least one source document.
 **Why this target:**
 <!-- Why all five and not four? What about your setup makes that achievable —
      or what would have to go wrong for it not to be? -->
+
+We want all five to produce at least one source document so we know that the system is using the correct guide
+for the answer and not answer from a different/wrong city guide.
 
 ---
 
@@ -53,6 +58,9 @@ in at least 4 of 5 tries.
 <!-- What did your distances look like when you set the cutoff in Milestone 4?
      Was there a clean gap, or did the two groups overlap? -->
 
+5 out of 5 of the out of scope questions should all be rejected based on the questions provided and the city guide documents
+but edge-case prompts could slip through so need to drop down to 4 out of 5 for better realistic criterion.
+
 ---
 
 ## 4. Something about your chunks
@@ -69,11 +77,12 @@ in at least 4 of 5 tries.
        - "No chunk is shorter than 200 characters, since anything below that
           in my corpus turned out to be a heading with no content under it." -->
 
-
+The sampled chunks contains the entire subsection of text, with no single chunk containing content from more than one city or topic.
 
 **Why this target:**
 
-
+All of the city guides are broken up into subsection with couple of sentences in each subsection to get the whole context of that subsection.
+So, as long as the subsections are not broken up, the answers should be fairly accurate. However only concern is the general guides, those subsections are longer so will need to somehow balance between the short and long subsections.
 
 ---
 
@@ -87,11 +96,11 @@ in at least 4 of 5 tries.
      present — anything, as long as it names a number or an observable
      outcome. -->
 
-
+Every answer the system produces accurate information for the requested city without mixing up information from other or surrounding city.
 
 **Why this target:**
 
-
+Each city guide have the same subsection topic, we don't want to provide the information from a different city's guide subsection.
 
 ---
 

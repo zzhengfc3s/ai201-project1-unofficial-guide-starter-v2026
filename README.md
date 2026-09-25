@@ -233,15 +233,87 @@ My thought: I also picked 0.6 cutoff before asking AI this question, it's good t
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 4/5 | 4/5 | 4/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. The sampled chunks contains the entire subsection of text, with no single chunk containing content from more than one city or topic.| 5 of 5 | 4/5 | 4/5 | 4/5 | MISSED |
+| 5. Every answer the system produces accurate information for the requested city without mixing up information from other or surrounding city.| 5 of 5 | 4/5 | 4/5 | 4/5 | MISSED |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+# Run log — before
+
+- Produced by: `run_eval.py::main`
+- Retrieval: `store.py::search`, chunks from `chunker.py::split_documents`
+- Corpus: `city_guides` (index variant `default`)
+- top-k: 5 · relevance cutoff: 0.6
+- Runs per question: 3, caching off
+- When: 2026-09-23 17:40
+
+Criterion 1.
+Question 3: Which town's market has been running the longest? — run 3
+
+- Best distance: 0.4465 (passed the gate)
+- Sources retrieved: guide_eating.md, guide_kestrelford.md, guide_thornby_wells.md
+
+```
+Kestrelford's market has been running the longest, as it has operated since the 1400s (whereas Marchwood's covered market has operated since 1863). 
+
+Source: `guide_eating.md` and `guide_kestrelford.md`
+```
+
+Criterion 2:
+Question 1: Which town is the easiest for walking? — run 1
+
+- Best distance: 0.4874 (passed the gate)
+- Sources retrieved: guide_brightwater.md, guide_corry_vale.md, guide_elder_ness.md, guide_halden_bay.md, guide_walking.md
+
+```
+Based on the provided documents, there is not enough information to determine which town is the *easiest* for walking. 
+
+Source: guide_walking.md, guide_corry_vale.md, guide_halden_bay.md, guide_brightwater.md, guide_elder_ness.md
+```
+
+Criterion 3:
+Produced by `run_eval.py::check_out_of_scope`, cutoff 0.6. Refused 5 of 5.
+
+Retrieval is deterministic and the gate is a comparison against a
+fixed number, so these do not vary between runs — one pass over the
+list is the whole measurement.
+
+| Out-of-scope question | Best distance | Gate |
+|---|---|---|
+| What is the capital of Mongolia? | 0.754 | refused |
+| How do I change the oil in a diesel engine? | 0.892 | refused |
+| Who won the 1994 World Cup? | 0.899 | refused |
+| What is the recommended dosage of ibuprofen for a headache? | 0.846 | refused |
+| How do I write a for loop in Rust? | 0.813 | refused |
+
+Criterion 4:
+Question 2: When do the restaurants close? — run 1
+
+- Best distance: 0.3376 (passed the gate)
+- Sources retrieved: guide_brightwater.md, guide_eating.md, guide_elder_ness.md, guide_halden_bay.md, guide_kestrelford.md
+
+```
+Based on the provided documents:
+
+* In Halden Bay, everything closes by 9pm and much of it closes entirely from November to February (guide_halden_bay.md).
+* Across the region outside Marchwood, kitchens stop serving at 9pm and often earlier, and many places close entirely on Sundays in Brightwater (guide_eating.md, guide_brightwater.md).
+```
+
+Criterion 5:
+Question 4: How many tram lines does Marchwood have? — run 2
+
+- Best distance: 0.3920 (passed the gate)
+- Sources retrieved: guide_accessibility.md, guide_marchwood.md, guide_thornby_wells.md
+
+```
+Marchwood has four tram lines. 
+
+Source: `guide_marchwood.md` and `guide_accessibility.md`
+```
 
 ## Verdicts
 

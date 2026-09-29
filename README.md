@@ -236,23 +236,75 @@ My thought: I also picked 0.6 cutoff before asking AI this question, it's good t
 | 1. Retrieved chunk contains the answer | 4 of 5 | 4/5 | 4/5 | 4/5 | MET |
 | 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
 | 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
-| 4. The sampled chunks contains the entire subsection of text, with no single chunk containing content from more than one city or topic.| 5 of 5 | 4/5 | 4/5 | 4/5 | MISSED |
-| 5. Every answer the system produces accurate information for the requested city without mixing up information from other or surrounding city.| 5 of 5 | 4/5 | 4/5 | 4/5 | MISSED |
+| 4. The sampled chunks contains the entire subsection of text, with no single chunk containing content from more than one city or topic.| 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Every answer the system produces accurate information for the requested city without mixing up information from other or surrounding city.| 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
 # Run log — before
 
-- Produced by: `run_eval.py::main`
-- Retrieval: `store.py::search`, chunks from `chunker.py::split_documents`
-- Corpus: `city_guides` (index variant `default`)
-- top-k: 5 · relevance cutoff: 0.6
-- Runs per question: 3, caching off
-- When: 2026-09-23 17:40
-
 Criterion 1.
+Question 1: Which town is the easiest for walking? — run 1
+- Produced by: `app.py::main`
+
+(best distance 0.487, cutoff 0.6)
+
+======================================================================
+System instruction sent with the prompt
+======================================================================
+You answer questions using only the documents provided to you.
+
+Rules:
+- Use only the information in the documents below. Do not use anything you know from elsewhere.
+- If the documents don't cover the question, say you don't have enough information. Do not guess.
+- Name the document your answer came from, using the filename given in each excerpt.
+- Be brief. Two or three sentences is usually enough.
+
+======================================================================
+The assembled prompt, exactly as sent
+======================================================================
+Documents:
+
+[from guide_corry_vale.md]
+## Getting around
+
+Nothing within the valley is walkable from anything else — the villages are two to four miles apart. There is one taxi, based in the largest village, and it must be booked a day ahead. Most visitors drive between villages and walk the footpaths in between.
+
+[from guide_halden_bay.md]
+## Getting there
+
+The coast road is the only approach and it is slow — 40 minutes for 22 miles, with the last stretch cut into the cliff. Buses run four times a day. Parking in the town itself is limited to two small lots that fill by 10am on summer weekends; the overflow lot is a 12-minute walk up a hill.
+
+[from guide_walking.md]
+# Walking in the region
+
+[from guide_brightwater.md]
+## Getting around
+
+The town is walkable end to end in about 35 minutes. The local bus runs two routes on a 30-minute headway until 7pm and stops entirely on Sundays. Cycling is easy along the river path and unpleasant on Mill Road, which has no shoulder. Taxis exist but must be phoned; they do not circulate looking for fares.
+
+[from guide_elder_ness.md]
+## Getting around
+
+On foot. The village is one street. The lighthouse is a 25-minute walk along the shingle, which is harder going than the distance suggests. There is one car park at the village and parking anywhere else on the headland is prohibited and enforced.
+
+---
+
+Question: Which town is the easiest for walking?
+
+Answer using only the documents above, and name the file you used.
+======================================================================
+
+Based on the provided documents, there is not enough information to determine which town is the *easiest* for walking.
+
+Sources retrieved: guide_brightwater.md, guide_corry_vale.md, guide_elder_ness.md, guide_halden_bay.md, guide_walking.md
+
+0 model calls this session, 1 served from cache
+
+Criterion 2:
 Question 3: Which town's market has been running the longest? — run 3
+- Produced by: `run_eval.py::main`
 
 - Best distance: 0.4465 (passed the gate)
 - Sources retrieved: guide_eating.md, guide_kestrelford.md, guide_thornby_wells.md
@@ -261,18 +313,6 @@ Question 3: Which town's market has been running the longest? — run 3
 Kestrelford's market has been running the longest, as it has operated since the 1400s (whereas Marchwood's covered market has operated since 1863). 
 
 Source: `guide_eating.md` and `guide_kestrelford.md`
-```
-
-Criterion 2:
-Question 1: Which town is the easiest for walking? — run 1
-
-- Best distance: 0.4874 (passed the gate)
-- Sources retrieved: guide_brightwater.md, guide_corry_vale.md, guide_elder_ness.md, guide_halden_bay.md, guide_walking.md
-
-```
-Based on the provided documents, there is not enough information to determine which town is the *easiest* for walking. 
-
-Source: guide_walking.md, guide_corry_vale.md, guide_halden_bay.md, guide_brightwater.md, guide_elder_ness.md
 ```
 
 Criterion 3:
@@ -291,20 +331,77 @@ list is the whole measurement.
 | How do I write a for loop in Rust? | 0.813 | refused |
 
 Criterion 4:
-Question 2: When do the restaurants close? — run 1
+Question 2: When do the restaurants close? — run 2
+- Produced by: `app.py::main`
+(best distance 0.338, cutoff 0.6)
 
-- Best distance: 0.3376 (passed the gate)
-- Sources retrieved: guide_brightwater.md, guide_eating.md, guide_elder_ness.md, guide_halden_bay.md, guide_kestrelford.md
+======================================================================
+System instruction sent with the prompt
+======================================================================
+You answer questions using only the documents provided to you.
 
-```
+Rules:
+- Use only the information in the documents below. Do not use anything you know from elsewhere.
+- If the documents don't cover the question, say you don't have enough information. Do not guess.
+- Name the document your answer came from, using the filename given in each excerpt.
+- Be brief. Two or three sentences is usually enough.
+
+======================================================================
+The assembled prompt, exactly as sent
+======================================================================
+Documents:
+
+[from guide_elder_ness.md]
+## Eat and drink
+
+One pub, serving food 12 to 2 and 6 to 8, closed Mondays. A shop that sells basics and closes at 5pm and all day Sunday. That is the complete list. Visitors staying more than a night bring food with them.
+
+[from guide_halden_bay.md]
+## Eat and drink
+
+Seafood, unsurprisingly, and it is genuinely fresh — the boats land in the early morning and the two harbour restaurants buy directly. Prices on the harbour front are roughly double those on Fell Street, one level up, for comparable food. Everything closes by 9pm and much of it closes entirely from November to February.
+
+[from guide_kestrelford.md]
+## Eat and drink
+
+Four pubs, two cafés, and a bakery that sells out by 11am. The pubs serve food between 12 and 2 and again between 6 and 8:30, and outside those windows there is nowhere to eat at all. The bakery is the reason most people come back.
+
+[from guide_eating.md]
+## Opening hours
+
+This catches visitors out more than anything else. Outside Marchwood, kitchens
+across the region stop serving at 9pm and often earlier. Kestrelford's pubs
+serve 12 to 2 and 6 to 8:30 and there is nowhere to eat at all outside those
+windows. Elder Ness has one pub, closed Mondays.
+
+Sunday evening is the hardest meal to find anywhere except Marchwood and
+Thornby Wells.
+
+[from guide_brightwater.md]
+## Eat and drink
+
+The riverside strip has six or seven places aimed squarely at visitors and priced accordingly. Two streets back, on Corry Lane, the same food costs about a third less. The Tuesday market sets up in the square from 7am and is finished by 1pm. Most kitchens in town stop serving at 9pm, earlier than visitors expect, and on Sundays many close entirely.
+
+---
+
+Question: When do the restaurants close?
+
+Answer using only the documents above, and name the file you used.
+======================================================================
+
 Based on the provided documents:
 
-* In Halden Bay, everything closes by 9pm and much of it closes entirely from November to February (guide_halden_bay.md).
-* Across the region outside Marchwood, kitchens stop serving at 9pm and often earlier, and many places close entirely on Sundays in Brightwater (guide_eating.md, guide_brightwater.md).
-```
+* In Halden Bay, everything closes by 9pm, and much of it closes entirely from November to February (`guide_halden_bay.md`).
+* Across the region (outside Marchwood), kitchens stop serving at 9pm and often earlier (`guide_eating.md`). 
+* In Brightwater, most kitchens stop serving at 9pm, and on Sundays many close entirely (`guide_brightwater.md`).
+
+Sources retrieved: guide_brightwater.md, guide_eating.md, guide_elder_ness.md, guide_halden_bay.md, guide_kestrelford.md
+
+0 model calls this session, 1 served from cache
 
 Criterion 5:
 Question 4: How many tram lines does Marchwood have? — run 2
+- Produced by: `run_eval.py::main`
 
 - Best distance: 0.3920 (passed the gate)
 - Sources retrieved: guide_accessibility.md, guide_marchwood.md, guide_thornby_wells.md
@@ -328,11 +425,11 @@ Source: `guide_marchwood.md` and `guide_accessibility.md`
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MISS | Even though we hit the target 4 of 5, it failed to correctly answer Question 1 for all 3 runs. I think is this a miss, and the target should be stricter at 5 of 5. Question 1 ended up being a good edge case question for my corpus. I was not expecting it to fail when I originally thought of the question, but it makes a bit of sense now after looking at the retrieved chunks. The answer were not in the retrieved chunks but it is in the corpus. So this is either a chunk ranking issue, the question is not grounded or the wording used in my question vs the corpus |
+| 2 | Every answer names a source | MET | All answers contained at least one source for all 5 questions and 3 runs. Even though it did not give the expected answer for Question 1, it names the sources that it looked at and came the to conclusion that none of the sources/retrieved chunk contains the correct answer. |
+| 3 | Gate stops out-of-corpus questions | MET | The gate rejected all obvious questions not related to my corpus. The closest best distance is 0.754, a good distance away from my selected cutoff of 0.6 |
+| 4 | The sampled chunks contains the entire subsection of text, with no single chunk containing content from more than one city or topic. | MET | I used app.py ask question with --show-prompt which allowed me to look at the retrieved chunk and check and it contains only the subsection of headers and the answers did not mix unrelated information from a different chunk |
+| 5 | Every answer the system produces accurate information for the requested city without mixing up information from other or surrounding city. | MET | Even though the answers for Question 1 was not the expected answer, it did not mix up information from the other cities based on the chunks it retrieved. For example, Question 5's retrieved source included guide_thornby_wells which contains information about Marchwood train but did not mix the information up or used that information. |
 
 ## Diagnoses
 

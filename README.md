@@ -206,6 +206,14 @@ The main risk is that this is a small sample. A covered question with a distance
 
 My thought: I also picked 0.6 cutoff before asking AI this question, it's good that AI confirms my 0.6 cutoff is a good and reasonable cutoff.
 
+**Unit 2 - 1**
+
+I asked Claude to argue the opposite verdict, and I agreed with its reasoning for Criterion 1, 4, and 5. I did change Criterion 1 from MET to MISS, Criterion 4 and 5 from MISS to MET because of Claude. I then asked it to argue the with verdicts, and its reasoning was more or less in line with what my reasoning.
+
+**Unit 2 - 2**
+
+I asked Claude to help write the update chunker.py because I'm not the most familiar with Python syntax.
+
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
@@ -244,10 +252,10 @@ My thought: I also picked 0.6 cutoff before asking AI this question, it's good t
      Name the file and function that produced it. -->
 # Run log — before
 
-Criterion 1.
+Criterion 1:
 Question 1: Which town is the easiest for walking? — run 1
 - Produced by: `app.py::main`
-
+```
 (best distance 0.487, cutoff 0.6)
 
 ======================================================================
@@ -301,7 +309,7 @@ Based on the provided documents, there is not enough information to determine wh
 Sources retrieved: guide_brightwater.md, guide_corry_vale.md, guide_elder_ness.md, guide_halden_bay.md, guide_walking.md
 
 0 model calls this session, 1 served from cache
-
+```
 Criterion 2:
 Question 3: Which town's market has been running the longest? — run 3
 - Produced by: `run_eval.py::main`
@@ -333,6 +341,7 @@ list is the whole measurement.
 Criterion 4:
 Question 2: When do the restaurants close? — run 2
 - Produced by: `app.py::main`
+```
 (best distance 0.338, cutoff 0.6)
 
 ======================================================================
@@ -398,6 +407,7 @@ Based on the provided documents:
 Sources retrieved: guide_brightwater.md, guide_eating.md, guide_elder_ness.md, guide_halden_bay.md, guide_kestrelford.md
 
 0 model calls this session, 1 served from cache
+```
 
 Criterion 5:
 Question 4: How many tram lines does Marchwood have? — run 2
@@ -543,15 +553,19 @@ Reduce unless chunks and maybe improve best distance on some edge cases.
 No improvement via run_eval with best distance. But it did reduce chunk by 4 and improved shortest chunk size from 23 to 173.
 
 Before:
+```
 Corpus: city_guides
   loaded   14 documents, 28,958 characters, ~2,068 characters per document
   chunked  98 chunks, 308 characters on average (shortest 23, longest 760), produced by chunker.py::split_documents
   embedding 98 chunks (first run downloads the model)...
   stored   98 chunks in 1.3s
+```
 
 After:
+```
 Corpus: city_guides
   loaded   14 documents, 28,958 characters, ~2,068 characters per document
   chunked  94 chunks, 320 characters on average (shortest 173, longest 760), produced by chunker.py::split_documents
   embedding 94 chunks (first run downloads the model)...
   stored   94 chunks in 1.3s
+```

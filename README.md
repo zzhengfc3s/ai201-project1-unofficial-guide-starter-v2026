@@ -451,6 +451,8 @@ Source: `guide_marchwood.md` and `guide_accessibility.md`
 
      Milestone 3. -->
 
+Diagnosis: Question 1 failed to provide correct answers. I think the issue is with the chunking. Looking at the retrieved chunk, there is a chunk with just the header and no context. The subsection should tied/link itself to the header during the chunking stage.
+
 ## The Improvement
 
 **What I changed:**

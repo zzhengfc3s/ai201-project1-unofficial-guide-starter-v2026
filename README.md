@@ -500,9 +500,13 @@ Yes, it was able to correctly answer Question 1 in all 3 runs. This fixes my rev
 
      Milestone 5. -->
 
+All criterion met, however the retrieved chunk still contains header with no context body which is useless information. I was originally going to exclude this change to the chunker but didn't because Milestone 4 said to make only 1 change.
+
 ## What I'd Do Differently
 
 <!-- Knowing what you know now — which of your five criteria would you write
      differently, and why?
 
      Milestone 5. -->
+
+I would write criterion 5 differently because it's too subjective I think and hard to automate testing, it relied too heavy on manual check to judge. While Criterion 4 was also manual check, it's alot easier to do and it ended up helping me narrow the miss on criterion 1.

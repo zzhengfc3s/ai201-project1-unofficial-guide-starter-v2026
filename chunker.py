@@ -134,12 +134,16 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
                 section = doc.text[match.start() : end]
                 body = section[match.end() - match.start() :].strip()
 
-                heading_line = f"{'#' * level} {title}"
-                if breadcrumb:
-                    piece = f"[{breadcrumb}]\n{heading_line}\n{body}" if body else f"[{breadcrumb}]\n{heading_line}"
-                else:
-                    piece = f"{heading_line}\n{body}" if body else heading_line
-                pieces.append(piece)
+                # A heading with nothing under it but its own subheadings. Skip
+                # emitting it, but still push it so its children inherit it
+                # as an ancestor in their breadcrumb.
+                if body:
+                    heading_line = f"{'#' * level} {title}"
+                    if breadcrumb:
+                        piece = f"[{breadcrumb}]\n{heading_line}\n{body}"
+                    else:
+                        piece = f"{heading_line}\n{body}"
+                    pieces.append(piece)
 
                 stack.append((level, title))
 

@@ -510,3 +510,48 @@ All criterion met, however the retrieved chunk still contains header with no con
      Milestone 5. -->
 
 I would write criterion 5 differently because it's too subjective I think and hard to automate testing, it relied too heavy on manual check to judge. While Criterion 4 was also manual check, it's alot easier to do and it ended up helping me narrow the miss on criterion 1.
+
+## Stretch Feature
+
+Not sure if this will count, but I wanted to add the 2nd part of chunk improvement that I originally thought of but didn't do because Milestone 4 said 1 change only. The 2nd part is removing chunks with just header and no context body.
+
+## The Improvement
+
+**What I changed:**
+
+The chunker does not create chunks with header only and empty context body.
+
+**Why I picked it:**
+
+Reduce unless chunks and maybe improve best distance on some edge cases.
+
+### Run Log — After
+
+<!-- Same format, same five criteria, three runs each.
+     `python run_eval.py --label after_extra` -->
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Retrieved chunk contains the answer | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | 5/5 |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. The sampled chunks contains the entire subsection of text, with no single chunk containing content from more than one city or topic.| 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Every answer the system produces accurate information for the requested city without mixing up information from other or surrounding city.| 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+**Did it help?**
+
+No improvement via run_eval with best distance. But it did reduce chunk by 4 and improved shortest chunk size from 23 to 173.
+
+Before:
+Corpus: city_guides
+  loaded   14 documents, 28,958 characters, ~2,068 characters per document
+  chunked  98 chunks, 308 characters on average (shortest 23, longest 760), produced by chunker.py::split_documents
+  embedding 98 chunks (first run downloads the model)...
+  stored   98 chunks in 1.3s
+
+After:
+Corpus: city_guides
+  loaded   14 documents, 28,958 characters, ~2,068 characters per document
+  chunked  94 chunks, 320 characters on average (shortest 173, longest 760), produced by chunker.py::split_documents
+  embedding 94 chunks (first run downloads the model)...
+  stored   94 chunks in 1.3s

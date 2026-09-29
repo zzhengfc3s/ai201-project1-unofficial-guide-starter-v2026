@@ -99,29 +99,54 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
         splitting on a character count?
     """
     chunks: list[Chunk] = []
-    heading_pattern = re.compile(r"(?m)^#{1,6}\s+.+$\n?")
+    # Capture the hashes and the title text separately so we can rebuild
+    # the heading line and track how deep it is (level = number of #s).
+    heading_pattern = re.compile(r"(?m)^(#{1,6})\s+(.+)$")
 
     for doc in documents:
         matches = list(heading_pattern.finditer(doc.text))
-        sections: list[str] = []
+        pieces: list[str] = []
 
         if not matches:
-            sections.append(doc.text.strip())
+            text = doc.text.strip()
+            if text:
+                pieces.append(text)
         else:
             preamble = doc.text[: matches[0].start()].strip()
             if preamble:
-                sections.append(preamble)
+                pieces.append(preamble)
+
+            # Ancestors currently "open," as (level, title) pairs. A new
+            # heading closes out any stack entries at its level or deeper —
+            # that's what turns this into a trail instead of a flat list.
+            stack: list[tuple[int, str]] = []
 
             for position, match in enumerate(matches):
-                end = matches[position + 1].start() if position + 1 < len(matches) else len(doc.text)
-                section = doc.text[match.start() : end].strip()
-                if section:
-                    sections.append(section)
+                level = len(match.group(1))
+                title = match.group(2).strip()
 
-        for index, section in enumerate(sections):
+                while stack and stack[-1][0] >= level:
+                    stack.pop()
+
+                breadcrumb = " > ".join(title for _, title in stack)
+
+                end = matches[position + 1].start() if position + 1 < len(matches) else len(doc.text)
+                section = doc.text[match.start() : end]
+                body = section[match.end() - match.start() :].strip()
+
+                heading_line = f"{'#' * level} {title}"
+                if breadcrumb:
+                    piece = f"[{breadcrumb}]\n{heading_line}\n{body}" if body else f"[{breadcrumb}]\n{heading_line}"
+                else:
+                    piece = f"{heading_line}\n{body}" if body else heading_line
+                pieces.append(piece)
+
+                stack.append((level, title))
+
+        for index, piece in enumerate(pieces):
             chunks.append(
                 Chunk(
-                    text=section,
+                    text=piece,
                     source=doc.source,
                     index=index,
                     produced_by="chunker.py::split_documents",
@@ -129,7 +154,6 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
             )
 
     return chunks
-
 
 def describe(chunks: list[Chunk]) -> str:
     """A one-line summary, printed after indexing."""

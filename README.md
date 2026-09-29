@@ -457,10 +457,14 @@ Diagnosis: Question 1 failed to provide correct answers. I think the issue is wi
 
 **What I changed:**
 
+The chunker now walks the heading matches keeping a stack of open ancestors by level, so each subsection knows its full parent trail (e.g. Walking in the region > Easy, on good surfaces) and prepends it as breadcrumbs before the heading line and body.
+
 **Why I picked it:**
 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
      you picked a fix because it sounded impressive. -->
+
+I only have 1 diagnosis, so it's to fix the chunking issue by linking subsections with its parent header. I'm hoping this will fix the issue by improving the ranking of the chunks now that it will have headers along with its context body.
 
 ### Run Log — After
 
@@ -469,11 +473,11 @@ Diagnosis: Question 1 failed to provide correct answers. I think the issue is wi
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | 5/5 |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. The sampled chunks contains the entire subsection of text, with no single chunk containing content from more than one city or topic.| 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Every answer the system produces accurate information for the requested city without mixing up information from other or surrounding city.| 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 **Did it help?**
 
@@ -483,6 +487,8 @@ Diagnosis: Question 1 failed to provide correct answers. I think the issue is wi
      tell.
 
      Milestone 4. -->
+
+Yes, it was able to correctly answer Question 1 in all 3 runs. This fixes my revised target for Criterion 1 and MET the target. I also checked the chunk using --show-prompt and it contained the correct context body with correct header.
 
 ## What's Still Broken
 

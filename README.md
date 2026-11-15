@@ -569,3 +569,18 @@ Corpus: city_guides
   embedding 94 chunks (first run downloads the model)...
   stored   94 chunks in 1.3s
 ```
+
+---
+
+# Unit 9
+
+## Capstone
+
+**The Shape**
+
+System: Unofficial Guide - City Guides
+Shape: Deploy, Instrument, Harden against failure
+Scope: I'm deploying the unofficial guide on a local host. The system will log every critical step. The system will prevent crashes from bad inputs, including but not limited to missing/empty input, huge input text, and prompt injection.
+Out-of-Scope: No changes to chunking, threshold values, fine tuning the model responses.
+
+---

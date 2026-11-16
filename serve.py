@@ -33,7 +33,8 @@ import re
 from flask import Flask, jsonify, request
 
 import config
-from generate import QuotaGuard
+import audit
+from generate import token_counts, QuotaGuard
 from store import index_exists
 
 app = Flask(__name__)
@@ -47,7 +48,7 @@ def validate_question(text: str) -> tuple[bool, str]:
     if not isinstance(text, str) or not text.strip():
         return False, "Send JSON with a non-empty 'question' string field."
     
-    if len(text) > 5000:
+    if len(text) > config.MAX_CHARACTER_LENGTH:
         return False, f"Question exceeds maximum length of 5000 characters."
     
     if re.search(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', text):
@@ -60,11 +61,11 @@ def validate_question(text: str) -> tuple[bool, str]:
     
     latin_chars = len(re.findall(r'[a-zA-Z]', text))
     total_chars = len(text)
-    if latin_chars / max(total_chars, 1) < 0.30:
+    if latin_chars / max(total_chars, 1) < config.ENGLISH_LATIN_RATIO:
         return False, "Question must be written primarily in plain English."
 
     max_word_len = max(len(w) for w in words)
-    if max_word_len > 100:
+    if max_word_len > config.MAX_WORD_LENGTH:
         return False, "Question contains excessively long unspaced strings."
 
     return True, ""
@@ -107,52 +108,109 @@ def ask():
     payload = request.get_json(silent=True) or {}
 
     if not isinstance(payload, dict):
+        error = "bad_request"
+        error_message = "Request must be a valid JSON object"
+        audit.log_rejection(
+            status_code=400,
+            question="",
+            error=error,
+            message=error_message
+        )
         return jsonify({
-            "error": "bad_request",
-            "message": "Request must be a valid JSON object"
+            "error": error,
+            "message": error_message
         }), 400
 
     question = payload.get("question")
     is_valid, error_message = validate_question(question)
     if not is_valid:
+        error = "bad_request"
+        audit.log_rejection(
+            status_code=400,
+            question=question,
+            error=error,
+            message=error_message
+        )
         return jsonify({
-            "error": "bad_request",
+            "error": error,
             "message": error_message
         }), 400
 
     if not index_exists(config.CORPUS):
+        error = "index_not_ready"
+        error_message = "No index for this corpus - Run python app.py index before serve.py"
+        audit.log_rejection(
+            status_code=500,
+            question=question,
+            error=error,
+            message=error_message
+        )
         return jsonify({
-            "error": "index_not_ready",
-            "message": "No index for this corpus"
+            "error": error,
+            "message": error_message
         }), 500
 
     try:
         outcome = ask_pipeline(question, corpus=config.CORPUS)
     except RuntimeError as exc:
+        error = "runtime_error"
+        error_message = f"{type(exc).__name__}: {exc}"
+        audit.log_rejection(
+            status_code=500,
+            question=question,
+            error=error,
+            message=error_message
+        )
         return jsonify({
-            "error": "runtime_error",
-            "message": f"{type(exc).__name__}: {exc}"
+            "error": error,
+            "message": error_message
         }), 500
     except QuotaGuard as exc:
+        error = "quota_guard_error"
+        error_message = f"{type(exc).__name__}: {exc}"
+        audit.log_rejection(
+            status_code=500,
+            question=question,
+            error=error,
+            message=error_message
+        )
         return jsonify({
-            "error": "quota_guard_error",
-            "message": f"{type(exc).__name__}: {exc}"
+            "error": error,
+            "message": error_message
         }), 500
     except Exception as exc:  # noqa: BLE001 — a reader gets this, not a traceback
+        error = "unexpected_error"
+        error_message = f"{type(exc).__name__}: {exc}"
+        audit.log_rejection(
+            status_code=500,
+            question=question,
+            error=error,
+            message=error_message
+        )
         return jsonify({
-            "error": "unexpected_error",
-            "message": f"{type(exc).__name__}: {exc}"
+            "error": error,
+            "message": error_message
         }), 500
 
+    audit.log_event(
+        status_code=200,
+        question=question,
+        answer=outcome["answer"],
+        refused=outcome["answer"],
+        sources=outcome["sources"],
+        best_distance=round(outcome["best_distance"], 4),
+        threshold=outcome["threshold"],
+        tokens=token_counts()
+    )
     return jsonify({
-            "question": question,
-            "answer": outcome["answer"],
-            "refused": outcome["refused"],
-            "sources": outcome["sources"],
-            "best_distance": round(outcome["best_distance"], 4),
-            "threshold": outcome["threshold"],
-            "corpus": config.CORPUS,
-        }), 200
+         "question": question,
+         "answer": outcome["answer"],
+         "refused": outcome["refused"],
+         "sources": outcome["sources"],
+         "best_distance": round(outcome["best_distance"], 4),
+         "threshold": outcome["threshold"],
+         "corpus": config.CORPUS,
+    }), 200
 
 
 def main():

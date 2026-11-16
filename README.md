@@ -583,4 +583,50 @@ Shape: Deploy, Instrument, Harden against failure
 Scope: I'm deploying the unofficial guide on a local host. The system will log every critical step. The system will guard against bad inputs and exceptions.
 Out-of-Scope: No changes to chunking, threshold values, fine tuning the model responses.
 
+**Instrumentation**
+
+I tested 3 failure runs, 2 logged the failure but 1 failure was not logged. It was a silly copy and paste error, found it and fixed it.
+
+Failure that was not logged
+```
+[2026-11-16 16:08:38,554] ERROR in app: Exception on /ask [POST]
+Traceback (most recent call last):
+  File "D:\CodePath\ai201-project1-unofficial-guide-starter-v2026\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "D:\CodePath\ai201-project1-unofficial-guide-starter-v2026\.venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "D:\CodePath\ai201-project1-unofficial-guide-starter-v2026\.venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "D:\CodePath\ai201-project1-unofficial-guide-starter-v2026\.venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\CodePath\ai201-project1-unofficial-guide-starter-v2026\serve.py", line 115, in ask
+    question=question,
+             ^^^^^^^^
+UnboundLocalError: cannot access local variable 'question' where it is not associated with a value
+```
+
+```json
+{"timestamp": "2026-11-16T22:08:02+00:00", "status_code": 200, "question": "How many tram lines does Marchwood have?", "answer": "Marchwood has four tram lines (guide_marchwood.md and guide_accessibility.md).", "refused": "Marchwood has four tram lines (guide_marchwood.md and guide_accessibility.md).", "sources": ["guide_accessibility.md", "guide_marchwood.md"], "best_distance": 0.1898, "threshold": 0.6, "prompt_tokens": 2474, "output_tokens": 152, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:07+00:00", "status_code": 200, "question": "What to see at Givens Mills?", "answer": "At Givens Mill, you can see the working watermill (which offers tours on the hour from 11 to 3 with operating machinery) and the church, which features a Saxon doorway. There is also a river walk downstream that reaches Brightwater in about three hours (guide_givens_mill.md).", "refused": "At Givens Mill, you can see the working watermill (which offers tours on the hour from 11 to 3 with operating machinery) and the church, which features a Saxon doorway. There is also a river walk downstream that reaches Brightwater in about three hours (guide_givens_mill.md).", "sources": ["guide_accessibility.md", "guide_givens_mill.md"], "best_distance": 0.4368, "threshold": 0.6, "prompt_tokens": 3001, "output_tokens": 217, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:13+00:00", "status_code": 200, "question": "Where to stay in Krestrelford?", "answer": "In Kestrelford, you can stay at one of the two inns on the square or in a handful of rooms above the pubs. (Source: guide_kestrelford.md)", "refused": "In Kestrelford, you can stay at one of the two inns on the square or in a handful of rooms above the pubs. (Source: guide_kestrelford.md)", "sources": ["guide_halden_bay.md", "guide_kestrelford.md", "guide_marchwood.md", "guide_seasons.md", "guide_thornby_wells.md"], "best_distance": 0.412, "threshold": 0.6, "prompt_tokens": 3470, "output_tokens": 255, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:18+00:00", "status_code": 200, "question": "What are the local eatery specialities?", "answer": "According to **guide_eating.md**, the local eatery specialities include:\n- Halden Bay's genuinely fresh seafood, bought directly from early-morning boats by the two harbour restaurants.\n- Givens Mill's tearoom, which sells bread made from flour ground twenty metres away.\n- Kestrelford's bakery, which sells out by 11am and brings back many returning visitors.\n- Thornby Wells' Sunday lunch, which is considered a local institution and requires booking a week in advance.", "refused": "According to **guide_eating.md**, the local eatery specialities include:\n- Halden Bay's genuinely fresh seafood, bought directly from early-morning boats by the two harbour restaurants.\n- Givens Mill's tearoom, which sells bread made from flour ground twenty metres away.\n- Kestrelford's bakery, which sells out by 11am and brings back many returning visitors.\n- Thornby Wells' Sunday lunch, which is considered a local institution and requires booking a week in advance.", "sources": ["guide_corry_vale.md", "guide_eating.md", "guide_elder_ness.md", "guide_kestrelford.md"], "best_distance": 0.4999, "threshold": 0.6, "prompt_tokens": 4063, "output_tokens": 363, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:29+00:00", "status_code": 200, "question": "Which local is best to vist in the summer?", "answer": "Based on the provided documents, June is one of the best months to visit Brightwater because of the long days, everything being open, and the students largely being gone (`guide_brightwater.md`). June is also noted as part of the \"sweet spot\" for visiting Halden Bay (`guide_halden_bay.md`).", "refused": "Based on the provided documents, June is one of the best months to visit Brightwater because of the long days, everything being open, and the students largely being gone (`guide_brightwater.md`). June is also noted as part of the \"sweet spot\" for visiting Halden Bay (`guide_halden_bay.md`).", "sources": ["guide_brightwater.md", "guide_halden_bay.md", "guide_seasons.md"], "best_distance": 0.5065, "threshold": 0.6, "prompt_tokens": 4583, "output_tokens": 431, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:31+00:00", "status_code": 200, "question": "How do I get to Pellew Sands?", "answer": "Based on the provided documents, there is no information explaining how to travel to Pellew Sands. \n\nSource: `guide_pellew_sands.md` and `guide_accessibility.md`", "refused": "Based on the provided documents, there is no information explaining how to travel to Pellew Sands. \n\nSource: `guide_pellew_sands.md` and `guide_accessibility.md`", "sources": ["guide_accessibility.md", "guide_pellew_sands.md"], "best_distance": 0.356, "threshold": 0.6, "prompt_tokens": 5133, "output_tokens": 474, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:34+00:00", "status_code": 200, "question": "Which town has a full hospital?", "answer": "According to guide_accessibility.md, the nearest full hospital is in Marchwood.", "refused": "According to guide_accessibility.md, the nearest full hospital is in Marchwood.", "sources": ["guide_accessibility.md", "guide_givens_mill.md", "guide_halden_bay.md", "guide_kestrelford.md", "guide_marchwood.md"], "best_distance": 0.4179, "threshold": 0.6, "prompt_tokens": 5670, "output_tokens": 491, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:36+00:00", "status_code": 200, "question": "What is the capital of Mongolia?", "answer": "I don't have enough information about that.", "refused": "I don't have enough information about that.", "sources": [], "best_distance": 0.8026, "threshold": 0.6, "prompt_tokens": 5670, "output_tokens": 491, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:40+00:00", "status_code": 400, "question": null, "error": "bad_request", "message": "Send JSON with a non-empty 'question' string field."}
+{"timestamp": "2026-11-16T22:08:42+00:00", "status_code": 400, "question": "    ", "error": "bad_request", "message": "Send JSON with a non-empty 'question' string field."}
+```
+
+**What It Costs**
+
+The system records the prompt tokens and output tokens per session. On a 10 prompt session run, the average token usage per prompt is 616.
+
+| Metric | Total | Average |
+|---|---|---|---|
+| Prompt Tokens | 5,670 | 567 |
+| Output Tokens | 491 | 49 |
+| Total Tokens | 6161 | 616 |
+
 ---

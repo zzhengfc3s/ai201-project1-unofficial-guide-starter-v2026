@@ -108,3 +108,12 @@ def collection_name(name: str | None = None, variant: str = "default") -> str:
     if not cleaned[-1].isalnum():
         cleaned = f"{cleaned}0"
     return cleaned[:63].rstrip("_-") or "collection"
+
+# ─── Unit 9: LOGS & GUARDS ────────────────────────────────────────────────────
+
+LOG_DIR = ROOT / "logs"
+AUDIT_LOG = LOG_DIR / "audit.jsonl"
+
+MAX_WORD_LENGTH = 100
+MAX_CHARACTER_LENGTH = 5000
+ENGLISH_LATIN_RATIO = 0.30

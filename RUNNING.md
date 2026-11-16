@@ -220,6 +220,8 @@ gunicorn serve:app                 # the way a host starts it
 `serve.py` has **no logging and no timing in it on purpose** — building that is
 the unit 9 exercise, and it is easier to instrument something you wrote.
 
+**NOTE** Run python app.py index before serve.py
+
 ---
 
 ## Stretch features

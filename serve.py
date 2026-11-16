@@ -28,6 +28,7 @@ this file stays the bare shell until then.
 """
 
 import os
+import re
 
 from flask import Flask, jsonify, request
 
@@ -35,6 +36,36 @@ import config
 
 app = Flask(__name__)
 
+
+def validate_question(text: str) -> tuple[bool, str]:
+    """
+    Returns:
+        (is_valid: bool, error_message: str)
+    """
+    if not isinstance(text, str) or not text.strip():
+        return False, "Send JSON with a non-empty 'question' string field."
+    
+    if len(text) > 5000:
+        return False, f"Question exceeds maximum length of 5000 characters."
+    
+    if re.search(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', text):
+        return False, "Question contains invalid control characters."
+    
+    words = re.findall(r'[a-zA-Z0-9]+', text)
+    
+    if not words:
+        return False, "Question must contain words."
+    
+    latin_chars = len(re.findall(r'[a-zA-Z]', text))
+    total_chars = len(text)
+    if latin_chars / max(total_chars, 1) < 0.30:
+        return False, "Question must be written primarily in plain English."
+
+    max_word_len = max(len(w) for w in words)
+    if max_word_len > 100:
+        return False, "Question contains excessively long unspaced strings."
+
+    return True, ""
 
 @app.get("/health")
 def health():
@@ -74,18 +105,20 @@ def ask():
     from app import ask_pipeline
 
     payload = request.get_json(silent=True) or {}
-    question = (payload.get("question") or "").strip()
 
-    if not question:
-        return (
-            jsonify(
-                {
-                    "error": "Send JSON with a question in it, like "
-                    '{"question": "is the housing lottery random?"}'
-                }
-            ),
-            400,
-        )
+    if not isinstance(payload, dict):
+        return jsonify({
+            "error": "bad_request",
+            "message": "Request must be a valid JSON object"
+        }), 400
+
+    question = payload.get("question")
+    is_valid, error_message = validate_question(question)
+    if not is_valid:
+        return jsonify({
+            "error": "bad_request",
+            "message": error_message
+        }), 400
 
     try:
         outcome = ask_pipeline(question, corpus=config.CORPUS)

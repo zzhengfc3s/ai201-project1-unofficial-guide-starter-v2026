@@ -580,7 +580,7 @@ Corpus: city_guides
 
 System: Unofficial Guide - City Guides
 Shape: Deploy, Instrument, Harden against failure
-Scope: I'm deploying the unofficial guide on a local host. The system will log every critical step. The system will prevent crashes from bad inputs, including but not limited to missing/empty input, huge input text, and emotes.
+Scope: I'm deploying the unofficial guide on a local host. The system will log every critical step. The system will guard against bad inputs and exceptions.
 Out-of-Scope: No changes to chunking, threshold values, fine tuning the model responses.
 
 ---

@@ -33,6 +33,8 @@ import re
 from flask import Flask, jsonify, request
 
 import config
+from generate import QuotaGuard
+from store import index_exists
 
 app = Flask(__name__)
 
@@ -77,8 +79,6 @@ def health():
     the index has to be built as part of getting the service up. Checking
     here means you find that out in one request instead of five.
     """
-    from store import index_exists
-
     ready = index_exists(config.CORPUS)
     return jsonify(
         {
@@ -120,13 +120,31 @@ def ask():
             "message": error_message
         }), 400
 
+    if not index_exists(config.CORPUS):
+        return jsonify({
+            "error": "index_not_ready",
+            "message": "No index for this corpus"
+        }), 500
+
     try:
         outcome = ask_pipeline(question, corpus=config.CORPUS)
+    except RuntimeError as exc:
+        return jsonify({
+            "error": "runtime_error",
+            "message": f"{type(exc).__name__}: {exc}"
+        }), 500
+    except QuotaGuard as exc:
+        return jsonify({
+            "error": "quota_guard_error",
+            "message": f"{type(exc).__name__}: {exc}"
+        }), 500
     except Exception as exc:  # noqa: BLE001 — a reader gets this, not a traceback
-        return jsonify({"error": f"{type(exc).__name__}: {exc}"}), 500
+        return jsonify({
+            "error": "unexpected_error",
+            "message": f"{type(exc).__name__}: {exc}"
+        }), 500
 
-    return jsonify(
-        {
+    return jsonify({
             "question": question,
             "answer": outcome["answer"],
             "refused": outcome["refused"],
@@ -134,8 +152,7 @@ def ask():
             "best_distance": round(outcome["best_distance"], 4),
             "threshold": outcome["threshold"],
             "corpus": config.CORPUS,
-        }
-    )
+        }), 200
 
 
 def main():

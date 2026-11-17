@@ -196,7 +196,7 @@ def ask():
         status_code=200,
         question=question,
         answer=outcome["answer"],
-        refused=outcome["answer"],
+        refused=outcome["refused"],
         sources=outcome["sources"],
         best_distance=round(outcome["best_distance"], 4),
         threshold=outcome["threshold"],

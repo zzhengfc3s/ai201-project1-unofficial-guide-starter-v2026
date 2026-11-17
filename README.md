@@ -576,14 +576,41 @@ Corpus: city_guides
 
 ## Capstone
 
+**What This Extends**
+
+System: Unofficial Guide Starter - City Guides
+
 **The Shape**
 
-System: Unofficial Guide - City Guides
 Shape: Deploy, Instrument, Harden against failure
-Scope: I'm deploying the unofficial guide on a local host. The system will log every critical step. The system will guard against bad inputs and exceptions.
+Scope: The system will log every critical step. The system will guard against bad inputs and exceptions.
 Out-of-Scope: No changes to chunking, threshold values, fine tuning the model responses.
 
+**Running It**
+
+Deployed on local host. I added a minor addition about running the app.py index before serve.py to "Running it somewhere else" section in `RUNNING.md`
+
 **Instrumentation**
+
+Successful log holds:
+     timestamp,
+     status_code,
+     question,
+     answer,
+     refused,
+     sources,
+     best_distance,
+     threshold,
+     prompt_tokens,
+     output_tokens,
+     corpus
+
+Rejection log holds:
+     timestamp,
+     status_code,
+     question,
+     error,
+     message
 
 I tested 3 failure runs, 2 logged the failure but 1 failure was not logged. It was a silly copy and paste error, found it and fixed it.
 
@@ -707,7 +734,31 @@ Criteria 5 - Run 1:
 {"timestamp": "2026-11-17T17:31:24+00:00", "status_code": 200, "question": "What to see at Givens Mills?", "answer": "Based on the provided documents, at Givens Mill you can see the working watermill (which offers tours on the hour from 11 to 3 with operating machinery), the church with its Saxon doorway, and the river walk downstream that reaches Brightwater in about three hours (guide_givens_mill.md).", "refused": "Based on the provided documents, at Givens Mill you can see the working watermill (which offers tours on the hour from 11 to 3 with operating machinery), the church with its Saxon doorway, and the river walk downstream that reaches Brightwater in about three hours (guide_givens_mill.md).", "sources": ["guide_accessibility.md", "guide_givens_mill.md"], "best_distance": 0.4368, "threshold": 0.6, "prompt_tokens": 3001, "output_tokens": 228, "corpus": "city_guides"}
 ```
 
+**The Improvement**
+All 5 criteria MET target. No improvements related to the criterias.
+
+However I did notice that there was a mistake in the log data when I ran the tests. In the audit log for valid question and response, refused was set to equal outcome["question"] instead of outcome["refused"]. I did not fix it mid-critera test run, but I did fix it after all the criterias tests finish.
+
+Before:
+```json
+{"timestamp": "2026-11-16T22:08:34+00:00", "status_code": 200, "question": "Which town has a full hospital?", "answer": "According to guide_accessibility.md, the nearest full hospital is in Marchwood.", "refused": "According to guide_accessibility.md, the nearest full hospital is in Marchwood.", "sources": ["guide_accessibility.md", "guide_givens_mill.md", "guide_halden_bay.md", "guide_kestrelford.md", "guide_marchwood.md"], "best_distance": 0.4179, "threshold": 0.6, "prompt_tokens": 5670, "output_tokens": 491, "corpus": "city_guides"}
+{"timestamp": "2026-11-16T22:08:36+00:00", "status_code": 200, "question": "What is the capital of Mongolia?", "answer": "I don't have enough information about that.", "refused": "I don't have enough information about that.", "sources": [], "best_distance": 0.8026, "threshold": 0.6, "prompt_tokens": 5670, "output_tokens": 491, "corpus": "city_guides"}
+```
+
+After:
+```json
+{"timestamp": "2026-11-17T19:10:21+00:00", "status_code": 200, "question": "Which town has a full hospital?", "answer": "Based on `guide_accessibility.md`, the nearest full hospital is in Marchwood.", "refused": false, "sources": ["guide_accessibility.md", "guide_givens_mill.md", "guide_halden_bay.md", "guide_kestrelford.md", "guide_marchwood.md"], "best_distance": 0.4179, "threshold": 0.6, "prompt_tokens": 537, "output_tokens": 18, "corpus": "city_guides"}
+{"timestamp": "2026-11-17T19:10:23+00:00", "status_code": 200, "question": "What is the capital of Mongolia?", "answer": "I don't have enough information about that.", "refused": true, "sources": [], "best_distance": 0.8026, "threshold": 0.6, "prompt_tokens": 537, "output_tokens": 18, "corpus": "city_guides"}
+```
+
+**What's Still Broken**
+I wanted the criteria 5 to evaluate about per request token usage but the system only records token usage per session. I would have liked to add function to record per request token usage but that is out of scope for this unit.
+
+If I have another unit, I'd like to extend the functionality to add different chunking strategy for different corpus, finetuning.
+
 **How I Used AI**
+
+***Moment 1:***
 
 Question:
 ```
@@ -780,5 +831,32 @@ New Criteria:
 3. Given valid request against a corpus that's not indexed, 100% of request returns an 500 JSON error response mentioning to run python app.py index.
 4. Given the quota limit is 3, a request hitting the quota limit, the 4th request returns an 500 JSON error response.
 5. Given 5 valid requests, the sum of the 5th request log's prompt and output token value is less than 6,000.
+
+***Moment 2***
+
+Question:
+I asked AI to generate the criteria tests and add it to `test_requests.py`. I initially wrote `test_requests.py` to run curl posts requests instead of manually writing the cmd on powershell and for other parts of the milestones.
+```
+Given these 5 criterias:
+
+1. Given 5 malformed or invalid POST payloads, 100% returns an 400 error response with structured json body.
+2. Given 5 requests (valid question or bad input), 100% of requests are logged.
+3. Given valid request against a corpus that's not indexed, 100% of request returns an 500 JSON error response mentioning to run python app.py index.
+4. Given the quota limit is 3, a request hitting the quota limit, the 4th request returns an 500 JSON error response.
+5. Given 5 valid requests, the sum of the 5th request log's prompt and output token value is less than 6,000.
+
+Edit test_requests to write the test cases needed to test each criteria 
+```
+
+Answer:
+AI edited `test_requests.py` like I asked, but I added the functions AI wrote as an addition. I also edited them as I saw fit.
+The following functions were generated by AI:
+`print_result_critera`,
+`read_audit_log`,
+`test_criteria_1_malformed_payloads`,
+`test_criteria_2_request_logging`,
+`test_criteria_3_unindexed_corpus`,
+`test_criteria_4_quota_limit`,
+`test_criteria_5_token_usage_limit`
 
 ---

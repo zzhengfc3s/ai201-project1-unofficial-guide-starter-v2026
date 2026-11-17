@@ -174,7 +174,7 @@ Database check, no indexed corpus means nothing else runs
 
 ---
 
-## 4. Rate/Quota Limit
+## 4. Quota Limit
 
 Given the quota limit is 3, a request hitting the quota limit, the 4th request returns an 500 JSON error response.
 

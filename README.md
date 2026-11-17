@@ -667,6 +667,7 @@ The system records the prompt tokens and output tokens per session. On a 10 prom
 | 5. Tokens | 5/5 | 5/5 | 4/5 | 5/5 | MET |
 
 Criteria 1 - Run 1:
+```
 --- Criteria 1: Malformed & Invalid POST Payloads ---
 [PASS] Payload: JSON Array Payload
        Status: 400, Body: {"error":"bad_request","message":"Request must be a valid JSON object"}
@@ -679,6 +680,7 @@ Criteria 1 - Run 1:
 [PASS] Payload: No Meaningful Words
        Status: 400, Body: {"error":"bad_request","message":"Question must contain words."}
 [PASS] Criteria 1 Overall Result
+```
 ```json
 {"timestamp": "2026-11-17T17:49:04+00:00", "status_code": 400, "question": "", "error": "bad_request", "message": "Request must be a valid JSON object"}
 {"timestamp": "2026-11-17T17:49:06+00:00", "status_code": 400, "question": null, "error": "bad_request", "message": "Send JSON with a non-empty 'question' string field."}
@@ -689,8 +691,10 @@ Criteria 1 - Run 1:
 
 Criteria 2 - Run 1:
 --- Criteria 2: Request Logging Verification ---
+```
 [PASS] Criteria 2 Overall Result
        Logged requests: 5/5 (Initial: 85, Final: 90)
+```
 ```json
 {"timestamp": "2026-11-17T17:49:36+00:00", "status_code": 200, "question": "Which town is the easiest for walking?", "answer": "Based on the documents, Thornby Wells has flat, formal gardens and level streets, making it the region's most accessible town on foot. \n\nSource: `guide_walking.md`", "refused": "Based on the documents, Thornby Wells has flat, formal gardens and level streets, making it the region's most accessible town on foot. \n\nSource: `guide_walking.md`", "sources": ["guide_accessibility.md", "guide_corry_vale.md", "guide_regional_transport.md", "guide_walking.md"], "best_distance": 0.5078, "threshold": 0.6, "prompt_tokens": 3739, "output_tokens": 300, "corpus": "city_guides"}
 {"timestamp": "2026-11-17T17:49:38+00:00", "status_code": 400, "question": "    ", "error": "bad_request", "message": "Send JSON with a non-empty 'question' string field."}
@@ -702,9 +706,11 @@ Criteria 2 - Run 1:
 Criteria 3 - Run 1:
 Deterministric check against a path. The runs will not change between runs, 1 run is enough for all 3 runs.
 I reset the index, ran server.py without index, then run test.
+```
 --- Criteria 3: Unindexed Corpus Guard ---
 [PASS] Criteria 3 Overall Result
        Status: 500, Body: {"error":"index_not_ready","message":"No index for this corpus - Run python app.py index before serve.py"}
+```
 ```json
 {"timestamp": "2026-11-17T18:34:50+00:00", "status_code": 500, "question": "Which town is the easiest for walking?", "error": "index_not_ready", "message": "No index for this corpus - Run python app.py index before serve.py"}
 ```
@@ -712,9 +718,11 @@ I reset the index, ran server.py without index, then run test.
 Criteria 4 - Run 1:
 Deterministric check against a fixed quote number. The runs will not change between runs, 1 run is enough for all 3 runs.
 I changed the config.SESSION_REQUEST_BUDGET = 3 (per criteria) instead of the default 300 to test.
+```
 --- Criteria 4: Quota Limit Enforcement ---
 [PASS] Criteria 4 Overall Result
        4th Request Status: 500, Body: {"error":"quota_guard_error","message":"QuotaGuard: This session has made 3 requests, which is the budget set in config.py (SESSION_REQUEST_BUDGET).\nThat usually means a loop is running away rather than that you've done 3 requests' worth of real work.\nStop the program and look for the loop. If you really do need more, raise the number in config.py \u2014 but look first."}
+```
 ```json
 {"timestamp": "2026-11-17T18:03:13+00:00", "status_code": 200, "question": "Which town is the easiest for walking? 1", "answer": "**Thornby Wells** is described as the region's most accessible town on foot and the easiest town in the region. \n\n*(Source: guide_walking.md and guide_accessibility.md)*", "refused": "**Thornby Wells** is described as the region's most accessible town on foot and the easiest town in the region. \n\n*(Source: guide_walking.md and guide_accessibility.md)*", "sources": ["guide_accessibility.md", "guide_corry_vale.md", "guide_walking.md"], "best_distance": 0.5045, "threshold": 0.6, "prompt_tokens": 800, "output_tokens": 43, "corpus": "city_guides"}
 {"timestamp": "2026-11-17T18:03:21+00:00", "status_code": 200, "question": "Which town is the easiest for walking? 2", "answer": "**Thornby Wells** is described as the easiest town in the region for walking, featuring flat, formal gardens and level streets. \n\nSource: `guide_walking.md` and `guide_accessibility.md`", "refused": "**Thornby Wells** is described as the easiest town in the region for walking, featuring flat, formal gardens and level streets. \n\nSource: `guide_walking.md` and `guide_accessibility.md`", "sources": ["guide_accessibility.md", "guide_corry_vale.md", "guide_walking.md"], "best_distance": 0.5043, "threshold": 0.6, "prompt_tokens": 1600, "output_tokens": 89, "corpus": "city_guides"}
@@ -723,9 +731,11 @@ I changed the config.SESSION_REQUEST_BUDGET = 3 (per criteria) instead of the de
 ```
 
 Criteria 5 - Run 1:
+```
 --- Criteria 5: Token Usage Cap on 5th Request ---
 [PASS] Criteria 5 Overall Result
        5th Request Token Sum: 3229 (Prompt: 3001, Output: 228) < 6,000
+```
 ```json
 {"timestamp": "2026-11-17T17:30:54+00:00", "status_code": 200, "question": "Which town is the easiest for walking?", "answer": "Based on the documents, Thornby Wells is described as the region's most accessible town on foot, featuring flat, formal gardens and level streets (*guide_walking.md*).", "refused": "Based on the documents, Thornby Wells is described as the region's most accessible town on foot, featuring flat, formal gardens and level streets (*guide_walking.md*).", "sources": ["guide_accessibility.md", "guide_corry_vale.md", "guide_regional_transport.md", "guide_walking.md"], "best_distance": 0.5078, "threshold": 0.6, "prompt_tokens": 738, "output_tokens": 37, "corpus": "city_guides"}
 {"timestamp": "2026-11-17T17:31:01+00:00", "status_code": 200, "question": "When do the restaurants close?", "answer": "In Halden Bay, everything closes by 9pm (guide_halden_bay.md). Across the region, kitchens stop serving at 9pm and often earlier (guide_eating.md).", "refused": "In Halden Bay, everything closes by 9pm (guide_halden_bay.md). Across the region, kitchens stop serving at 9pm and often earlier (guide_eating.md).", "sources": ["guide_eating.md", "guide_elder_ness.md", "guide_givens_mill.md", "guide_halden_bay.md", "guide_kestrelford.md"], "best_distance": 0.4639, "threshold": 0.6, "prompt_tokens": 1289, "output_tokens": 79, "corpus": "city_guides"}

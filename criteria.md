@@ -139,3 +139,57 @@ Each city guide have the same subsection topic, we don't want to provide the inf
      The whole reason the originals stay visible is so someone can see what you
      said before you knew the answer.
      ───────────────────────────────────────────────────────────────────────── -->
+
+# Unit 9 - Milestone 4: Acceptance Criteria
+
+---
+
+## 1. Bad Input Guard
+
+Given 5 malformed or invalid POST payloads, 100% returns an 400 error response with structured json body.
+
+**Why this target:**
+
+Deterministric path check against bad inputs should be 100% return an error response instead of a crash and saves on processing power on bad inputs.
+
+---
+
+## 2. Logging
+
+Given 5 requests (valid question or bad input), 100% of requests are logged.
+
+**Why this target:**
+
+100% audit logging prevents operational blind spots where errors occur without a trace.
+
+---
+
+## 3. Indexed Corpus
+
+Given valid request against a corpus that's not indexed, 100% of request returns an 500 JSON error response mentioning to run python app.py index.
+
+**Why this target:**
+
+Database check, no indexed corpus means nothing else runs
+
+---
+
+## 4. Rate/Quota Limit
+
+Given the quota limit is 3, a request hitting the quota limit, the 4th request returns an 500 JSON error response.
+
+**Why this target:**
+
+Deterministric limit check, we want 100% returns error response so the user know the service is temporarity limited instead of a hang or crash.
+
+---
+
+## 5. Tokens
+
+Given 5 valid requests, the sum of the 5th request log's prompt and output token value is less than 6,000.
+
+**Why this target:**
+
+The target is less than 6,000 because the average total token usage per request is 616, given 5 requests and 2x the buffer.
+
+---

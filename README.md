@@ -629,4 +629,78 @@ The system records the prompt tokens and output tokens per session. On a 10 prom
 | Output Tokens | 491 | 49 |
 | Total Tokens | 6161 | 616 |
 
+**How I Used AI**
+
+Question:
+```
+Here are five acceptance criteria for a system I extended. For each one: how exactly would you test it using only the sentence itself, would two people score it the same way, and what would have to happen for it to fail? Don't rewrite them.
+
+1. Given 5 malformed or invalid POST payloads, 100% returns an error response.
+2. Given 5 requests (valid question or bad input), 100% of requests are logged.
+3. Given valid request against a corpus that's not index, 100% of requests returns an error response mentioning to run python app.py index.
+4. Given a request hitting rate or quota limit, 100% of the request returns an error response.
+5. Given 5 valid requests, the total token usage reported in the log for that session is less than 6,000.
+```
+
+Answer:
+```
+These criteria come from a RAG-style app (corpus, index command, token budget). I’m working only from the sentences as written, which is the constraint you set.
+
+1. “Given 5 malformed or invalid POST payloads, 100% returns an error response.”
+
+Test: Send five bad payloads to the POST endpoint and check that each gets an error response.
+
+Same score from two people? No. “Error response” is the weak point. One scorer counts any 4xx or 5xx. Another counts only a structured JSON error body. A third counts a 200 containing {"error": ...}. The criterion doesn’t say which five payloads to use, so a tester who picks easy ones (missing field) and one who picks hard ones (valid JSON, wrong types, oversized body, wrong content-type) will get different results. “Malformed” and “invalid” are also left undefined.
+
+Failure: Any one of the five gets a success response, hangs, or crashes the server with no response. Because the threshold is 100% of 5, a single miss fails it. A 500 from an unhandled exception is the ambiguous case: it is technically an error response, but it probably isn’t what you meant.
+
+2. “Given 5 requests (valid question or bad input), 100% of requests are logged.”
+
+Test: Send five requests, then count log entries.
+
+Same score? No. “Logged” doesn’t say where (file, stdout, a store), what a log entry must contain, or whether one line per request is required. A scorer could count a generic “server started” line, or a stack trace that happens to coincide with the request. “Valid question or bad input” doesn’t say how many of the five are each, so the mix is up to the tester. And “bad input” overlaps with criterion 1, so the same failure could be scored in both places.
+
+Failure: Fewer than five entries exist. That covers a request rejected before it reaches the logging code (validation failing early), or a crash that happens before the log write.
+
+3. “Given valid request against a corpus that’s not index, 100% of requests returns an error response mentioning to run python app.py index.”
+
+Test: Send a valid request with an unindexed corpus and read the error message for the command.
+
+Same score? Mostly, but the sentence has a typo (“not index” for “not indexed”) and a grammar mismatch (“requests returns”). It also doesn’t say how many requests to send, unlike 1, 2 and 5. “Mentioning” is loose: does python app.py index have to appear verbatim, or is “please index first” enough? Does it count if the message is in a log but not in the response?
+
+Failure: The response is a generic error with no mention of the command, a success with empty results, or an error that names the wrong command. The setup is also ambiguous. “Not indexed” could mean no index file exists, an empty one, or a stale one, and each could behave differently.
+
+4. “Given a request hitting rate or quota limit, 100% of the request returns an error response.”
+
+Test: Drive requests past the limit and check what comes back.
+
+Same score? No. This one is the least testable as written. It doesn’t say which limit (your app’s own rate limiter, or the upstream provider’s quota), how to trigger it deterministically, or how many requests count as the sample. “Rate or quota” could be either, so one tester might mock an upstream 429 and another might hammer the endpoint. It also says “100% of the request” with no number, so the denominator is unclear. And it never says what the error response should say or what status code to use.
+
+Failure: A request over the limit is served normally, is silently retried and succeeds, or the upstream limit surfaces as a raw exception or a hang rather than a handled error. Because the trigger isn’t defined, a tester can also fail to reproduce the condition at all, which leaves the result indeterminate rather than pass or fail.
+
+5. “Given 5 valid requests, the total token usage reported in the log for that session is less than 6,000.”
+
+Test: Send five valid requests, then read the token total from the log and compare it to 6,000.
+
+Same score? Least of all five. “Valid request” doesn’t say which questions, and token usage depends heavily on question length and retrieved context. “Session” is undefined, so it could mean a process lifetime, a client connection or a log file. “Total token usage” doesn’t say whether input and output tokens are summed or only one is counted, and it doesn’t say whether embedding tokens count. It also depends on criterion 2, because the token figure has to be in the log, and that isn’t stated as a requirement here. Two testers with different questions could land on opposite sides of 6,000.
+
+Failure: The total is 6,000 or more, or the log doesn’t report token usage at all (the criterion can’t be evaluated, which most scorers would count as a fail). Exactly 6,000 also fails, since the sentence says “less than.”
+
+Overall pattern: Criteria 1, 2 and 4 are pass/fail only if you assume a definition of “error response” or “logged” that the sentence doesn’t give. Criterion 3 is the most self-contained. Criterion 5 is the most sensitive to inputs the sentence leaves out. The “5 requests” and “100%” framing in 1, 2 and 5 also means one bad case fails the whole criterion, and nothing says whether the five cases must be different from each other.
+```
+
+What I Changed:
+
+Old Criteria:
+1. Given 5 malformed or invalid POST payloads, 100% returns an error response.
+3. Given valid request against a corpus that's not index, 100% of requests returns an error response mentioning to run python app.py index.
+4. Given a request hitting rate or quota limit, 100% of the request returns an error response.
+5. Given 5 valid requests, the total token usage reported in the log for that session is less than 6,000.
+
+New Criteria:
+1. Given 5 malformed or invalid POST payloads, 100% returns an 400 error response with structured json body.
+3. Given valid request against a corpus that's not indexed, 100% of request returns an 500 JSON error response mentioning to run python app.py index.
+4. Given the quota limit is 3, a request hitting the quota limit, the 4th request returns an 500 JSON error response.
+5. Given 5 valid requests, the sum of the 5th request log's prompt and output token value is less than 6,000.
+
 ---
